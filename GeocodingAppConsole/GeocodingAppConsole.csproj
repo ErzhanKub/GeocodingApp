@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Office.Interop.Excel" Version="15.0.4795.1001" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Syncfusion.XlsIO.Net.Core" Version="24.2.4" />
   </ItemGroup>
 
 </Project>

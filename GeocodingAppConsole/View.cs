@@ -49,7 +49,9 @@ internal sealed class View
         Console.SetCursorPosition(22, 2);
         var apiKey = Console.ReadLine();
 
-        var geocoder = new Geocoder(apiKey);
+        Console.Clear();
+
+        var geocoder = new MapQuestGeocoder(apiKey);
         var addressGeocoder = new ExcelAddressGeocoder(geocoder);
         await addressGeocoder.AddressHandler(filePath);
     }

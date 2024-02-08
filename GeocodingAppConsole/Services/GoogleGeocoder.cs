@@ -4,13 +4,13 @@ using Newtonsoft.Json.Linq;
 
 namespace GeocodingAppConsole.Services;
 
-internal sealed class Geocoder : IGeocoder
+internal sealed class GoogleGeocoder : IGeocoder
 {
     private readonly HttpClient _httpClient;
     private readonly string _apiKey;
     private const string googleMapsUrl = "https://maps.googleapis.com/maps/api/geocode/json?address=";
 
-    public Geocoder(string apiKey)
+    public GoogleGeocoder(string apiKey)
     {
         _httpClient = new HttpClient();
         _apiKey = apiKey;
