@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace GeocodingAppConsole.Services;
+namespace GeocodingAppConsole.Services.Geocoders;
 
 internal sealed class GoogleGeocoder : IGeocoder
 {

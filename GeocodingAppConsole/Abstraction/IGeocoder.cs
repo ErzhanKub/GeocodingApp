@@ -2,5 +2,5 @@
 
 internal interface IGeocoder
 {
-    Task<(double lat, double lng)> GeocodeAsync(string adress);
+    Task<(double lat, double lng)> GeocodeAsync(string address);
 }

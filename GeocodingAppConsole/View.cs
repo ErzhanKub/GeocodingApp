@@ -1,4 +1,5 @@
 ﻿using GeocodingAppConsole.Services;
+using GeocodingAppConsole.Services.Geocoders;
 
 namespace GeocodingAppConsole;
 
@@ -51,7 +52,7 @@ internal sealed class View
 
         Console.Clear();
 
-        var geocoder = new MapQuestGeocoder(apiKey);
+        var geocoder = new TwoGisGeocoder(apiKey);
         var addressGeocoder = new ExcelAddressGeocoder(geocoder);
         await addressGeocoder.AddressHandler(filePath);
     }

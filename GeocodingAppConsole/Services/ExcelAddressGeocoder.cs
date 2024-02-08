@@ -1,80 +1,62 @@
 ﻿using GeocodingAppConsole.Abstraction;
-using Syncfusion.XlsIO;
+using OfficeOpenXml;
 
-namespace GeocodingAppConsole.Services;
 
-internal sealed class ExcelAddressGeocoder
+namespace GeocodingAppConsole.Services
 {
-    private readonly IGeocoder _geocoder;
-
-    public ExcelAddressGeocoder(IGeocoder geocoder)
+    internal sealed class ExcelAddressGeocoder
     {
-        _geocoder = geocoder;
-    }
+        private readonly IGeocoder _geocoder;
 
-    public async Task AddressHandler(string path)
-    {
-        // Использование ExcelEngine для работы с Excel файлом
-        using (var excelEngine = new ExcelEngine())
+        public ExcelAddressGeocoder(IGeocoder geocoder)
         {
-            IApplication application = excelEngine.Excel;
-            IWorkbook workbook;
+            _geocoder = geocoder;
+        }
 
-            // Открытие Excel файла по указанному пути
-            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+        public async Task AddressHandler(string path)
+        {
+            using (var package = new ExcelPackage(new FileInfo(path)))
             {
-                workbook = application.Workbooks.Open(stream);
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
-                // Выбор первого листа в рабочей книге Excel
-                IWorksheet worksheet = workbook.Worksheets[0];
+                var worksheet = package.Workbook.Worksheets[0];
+                int rowCount = worksheet.Dimension.Rows;
 
-                // Получение количества строк в листе
-                int rowCount = worksheet.UsedRange.Rows.Count();
-
-                // Обработка адресов начиная со второй строки (пропуская заголовки)
-                for (int i = 2; i <= rowCount; i++)
+                for (int i = 2; i <= 50; i++)
                 {
                     try
                     {
-                        // Получение адреса из текущей строки первой ячейки
-                        var address = worksheet.Range[i, 2].Value;
-
-                        // Геокодирование адреса и получение широты и долготы
+                        var address = worksheet.Cells[i, 2].Value.ToString();
                         var (lat, lng) = await _geocoder.GeocodeAsync(address);
 
-                        // Запись широты и долготы в текущую строку
-                        worksheet.Range[i, 3].Value = lat.ToString();
-                        worksheet.Range[i, 4].Value = lng.ToString();
+                        worksheet.Cells[i, 3].Value = lat;
+                        worksheet.Cells[i, 4].Value = lng;
 
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine($"Адрес: {address} успешно обработан. Широта: {lat} | Долгота: {lng}");
 
                         Console.ForegroundColor = ConsoleColor.Yellow;
                         Console.SetCursorPosition(0, 5);
-                        int progress = (i - 1) * 100 / (rowCount - 1);
+                        int progress = (i - 1) * 100 / (50 - 1);
                         Console.Write($"\rОбработано адресов: {progress}%");
-                        Console.SetCursorPosition(0,0);
+                        Console.SetCursorPosition(0, 0);
                         Console.ResetColor();
                     }
                     catch (Exception ex)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"Ошибка при обработке адреса: {worksheet.Range[i, 2].Value} || {ex.Message}");
+                        Console.WriteLine($"Ошибка при обработке адреса: {worksheet.Cells[i, 2].Value} || {ex.Message}");
                         Console.ResetColor();
                     }
                 }
+
+                package.Save();
             }
 
-            // Сохранение и закрытие рабочей книги
-            using (var saveStream = new FileStream(path, FileMode.Create, FileAccess.Write))
-            {
-                workbook.SaveAs(saveStream);
-            }
-            workbook.Close();
+            Console.SetCursorPosition(0, 2);
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("##### - Обработка всех адресов завершена. Файл Excel сохранен - ####");
+            Console.ResetColor();
         }
-        Console.SetCursorPosition(0,2);
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("##### - Обработка всех адресов завершена. Файл Excel сохранен - ####");
-        Console.ResetColor();
     }
 }
