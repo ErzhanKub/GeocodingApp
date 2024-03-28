@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  geocodingapp.webapi:
+    image: ${DOCKER_REGISTRY-}geocodingappwebapi
+    build:
+      context: .
+      dockerfile: GeocodingApp.WebApi/Dockerfile
